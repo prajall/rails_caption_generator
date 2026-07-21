@@ -1,0 +1,58 @@
+<div class="home-header">
+  <h1>Caption Generator</h1>
+  <div class="home-header-actions">
+    <span class="user-email"><%= Current.user.email_address %></span>
+    <%= button_to "Sign out", session_path, method: :delete, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<% if flash[:alert] %>
+  <div class="alert alert-error"><%= flash[:alert] %></div>
+<% end %>
+<% if flash[:notice] %>
+  <div class="alert alert-success"><%= flash[:notice] %></div>
+<% end %>
+
+<div class="upload-card">
+  <h2>Upload an Image</h2>
+  <p>Upload a photo and to generate captions using AI.</p>
+  <%= form_with url: images_path, multipart: true, class: "upload-form" do |form| %>
+    <div class="form-group">
+      <%= form.file_field :image, accept: "image/*", required: true, class: "form-control", id: "image-input" %>
+    </div>
+    <%= form.submit "Generate Captions", class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<% if @images.any? %>
+  <div class="images-grid">
+    <% @images.each do |img| %>
+      <div class="image-card">
+        <div class="image-card-img">
+          <%= image_tag img.image, alt: "Uploaded image" if img.image.attached? %>
+        </div>
+        <div class="image-card-body">
+          <% if img.captions.any? %>
+            <ul class="caption-list">
+              <% img.captions.each_with_index do |caption, i| %>
+                <li>
+                  <span class="caption-number"><%= i + 1 %></span>
+                  <span class="caption-text"><%= caption.content %></span>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <p class="no-captions">No captions generated yet.</p>
+          <% end %>
+          <div class="image-card-meta">
+            <time><%= time_ago_in_words(img.created_at) %> ago</time>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <p>No images uploaded yet. Upload your first image above!</p>
+  </div>
+<% end %>
